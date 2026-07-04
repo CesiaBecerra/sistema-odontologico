@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Registrar Historial</title>
+</head>
+<body>
+
+<h2>Registrar Historial Clínico</h2>
+
+<form th:action="@{/historial/guardar}" th:object="${historial}" method="post">
+
+    <!-- FK paciente -->
+    <input type="hidden" th:field="*{paciente.id}" />
+
+    Fecha:
+    <input type="date" th:field="*{fecha}" />
+    <br><br>
+
+    Motivo consulta:
+    <input type="text" th:field="*{motivoConsulta}" />
+    <br>
+
+    Síntomas:
+    <input type="text" th:field="*{sintomas}" />
+    <br>
+
+    Diagnóstico:
+    <input type="text" th:field="*{diagnostico}" />
+    <br>
+
+    Plan tratamiento:
+    <input type="text" th:field="*{planTratamiento}" />
+    <br>
+
+    Observaciones:
+    <input type="text" th:field="*{observaciones}" />
+    <br><br>
+
+    <h4>Antecedentes</h4>
+
+    <label>
+        <input type="checkbox" th:field="*{diabetes}" />
+        Diabetes
+    </label><br>
+
+    <label>
+        <input type="checkbox" th:field="*{hipertension}" />
+        Hipertensión
+    </label><br>
+
+    <label>
+        <input type="checkbox" th:field="*{alergias}" />
+        Alergias
+    </label><br>
+
+    <label>
+        <input type="checkbox" th:field="*{embarazo}" />
+        Embarazo
+    </label>
+
+    <br><br>
+
+    Costo tratamiento:
+    <input type="number" step="0.01" th:field="*{costoTratamiento}" />
+    <br>
+
+    Monto pagado:
+    <input type="number" step="0.01" th:field="*{monto}" />
+    <br><br>
+
+    <input type="hidden" th:field="*{odontogramaJson}" />
+
+    <button type="submit">Guardar</button>
+
+    <a th:href="@{/historial/paciente/{id}(id=${historial.paciente.id})}">
+        Cancelar
+    </a>
+
+</form>
+
+</body>
+</html>

@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Login | Digital Dentic</title>
+
+<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+
+/* ===== FONDO ===== */
+body{
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#a7d4d1,#07a79a);
+    font-family:'Segoe UI',sans-serif;
+}
+
+/* ===== TARJETA ===== */
+.login-card{
+    width:950px;
+    border-radius:18px;
+    overflow:hidden;
+    background:rgba(255,255,255,0.95);
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+    animation:fadeIn .8s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px)}
+    to{opacity:1; transform:translateY(0)}
+}
+
+/* ===== IMAGEN ===== */
+.login-image{
+    position:relative;
+    background:url('https://www.clinicasonrisasegura.pe/wp-content/uploads/2023/07/Consultorio-dental-Descubre-la-excelencia.webp') center/cover;
+    min-height:520px;
+    animation:slideIn 1s ease;
+}
+
+@keyframes slideIn{
+    from{transform:translateX(-40px); opacity:0}
+    to{transform:translateX(0); opacity:1}
+}
+
+/* overlay */
+.login-image::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,rgba(0,0,0,.35),rgba(0,0,0,.15));
+}
+
+/* ===== FORM ===== */
+.login-form{
+    padding:60px 45px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.logo{
+    font-size:30px;
+    font-weight:700;
+    color:#1c4fa1;
+}
+
+.subtitle{
+    color:#6c757d;
+    font-size:14px;
+}
+
+.input-group-text{
+    background:white;
+}
+
+.btn-login{
+    height:48px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn-login:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+/* ===== LOADER FULL ===== */
+.loader-full{
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,.85);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    visibility:hidden;
+}
+
+.loader-full.active{
+    visibility:visible;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOADER -->
+<div id="loaderFull" class="loader-full">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-3" style="width:3rem;height:3rem"></div>
+        <div>Ingresando al sistema...</div>
+    </div>
+</div>
+
+<div class="login-card">
+<div class="row g-0 flex-md-row flex-column">
+
+    <!-- IMAGEN -->
+    <div class="col-md-6 login-image"></div>
+
+    <!-- FORM -->
+    <div class="col-md-6 login-form">
+
+        <div class="mb-4">
+            <div class="logo">DIGITAL DENTIC</div>
+            <div class="subtitle">Inicia sesión para acceder a tu cuenta</div>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger">
+            Usuario o contraseña incorrectos
+        </div>
+
+        <form method="post" th:action="@{/login}" onsubmit="loginAnim()">
+
+            <!-- USER -->
+            <div class="mb-3">
+                <label class="form-label">Usuario</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- PASS -->
+            <div class="mb-2">
+                <label class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input id="password" type="password" name="password" class="form-control" required>
+                    <span class="input-group-text" onclick="togglePass()" style="cursor:pointer">
+                        <i id="eye" class="bi bi-eye"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- BTN -->
+            <button id="btnLogin" class="btn btn-primary w-100 btn-login">
+                Iniciar sesión
+            </button>
+
+        </form>
+
+        <div class="text-center mt-4">
+            <a th:href="@{/}" class="text-decoration-none text-muted">← Volver al inicio</a>
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+<script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+function togglePass(){
+    let p=document.getElementById("password");
+    let eye=document.getElementById("eye");
+    if(p.type==="password"){
+        p.type="text";
+        eye.className="bi bi-eye-slash";
+    }else{
+        p.type="password";
+        eye.className="bi bi-eye";
+    }
+}
+
+function loginAnim(){
+    document.getElementById("btnLogin").innerHTML=
+        '<span class="spinner-border spinner-border-sm"></span> Ingresando...';
+    document.getElementById("loaderFull").classList.add("active");
+}
+</script>
+
+</body>
+</html>

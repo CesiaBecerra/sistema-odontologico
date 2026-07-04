@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Comprobante</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+<style>
+body{ background:white; }
+.comprobante{
+    max-width:600px;
+    margin:auto;
+    padding:30px;
+    border:1px solid #ddd;
+}
+@media print{
+    button{ display:none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="comprobante">
+
+    <h3 class="text-center">DIGITAL DENTIC</h3>
+    <hr>
+
+    <p><strong>Comprobante:</strong> <span th:text="${pago.numeroComprobante}"></span></p>
+    <p><strong>Fecha:</strong> <span th:text="${#temporals.format(pago.fechaPago,'dd/MM/yyyy')}"></span></p>
+    <p><strong>Método:</strong> <span th:text="${pago.metodoPago}"></span></p>
+
+    <hr>
+
+    <h4>Total Pagado:
+        <span th:text="'S/ ' + ${pago.monto}"></span>
+    </h4>
+
+    <hr>
+
+    <p>Gracias por su confianza.</p>
+
+    <div class="text-center mt-4">
+        <button onclick="window.print()" class="btn btn-dark">
+            Imprimir
+        </button>
+    </div>
+
+</div>
+
+</body>
+</html>

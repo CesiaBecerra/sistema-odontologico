@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Odontograma</title>
+
+<!-- CSRF -->
+<meta name="_csrf" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body { background:#f4f6f9; }
+.canvas-container { position:relative; display:inline-block; overflow:hidden; }
+#canvasBase { display:block; border:3px solid #0d6efd; border-radius:10px; }
+#canvasDibujo { position:absolute; left:0; top:0; z-index:2; border:3px solid #0d6efd; border-radius:10px; cursor:crosshair; }
+.color-btn { width:35px; height:35px; border-radius:50%; border:2px solid white; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<input type="hidden" id="historialId" th:value="${historialId}">
+<input type="hidden" id="imagenGuardada" th:value="${anotacion != null ? anotacion : ''}">
+
+<div class="container mt-4">
+<div class="card shadow-lg">
+<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <span>🦷 Odontograma Profesional</span>
+    <button class="btn btn-light btn-sm" onclick="history.back()">⬅ Volver</button>
+</div>
+
+<div class="card-body text-center">
+
+<div class="mb-3">
+<strong>Colores:</strong><br>
+<button class="color-btn bg-danger" onclick="cambiarColor('#dc3545')"></button>
+<button class="color-btn bg-primary" onclick="cambiarColor('#0d6efd')"></button>
+<button class="color-btn bg-success" onclick="cambiarColor('#198754')"></button>
+</div>
+
+<div class="mb-3">
+<label>Grosor</label>
+<input type="range" id="size" min="1" max="30" value="5" class="form-range w-25 mx-auto">
+</div>
+
+<div class="mb-3">
+<label>Transparencia</label>
+<input type="range" id="alpha" min="0.1" max="1" step="0.1" value="1" class="form-range w-25 mx-auto">
+</div>
+
+<div class="mb-3">
+<button class="btn btn-secondary" onclick="activarBorrador()">🧽 Borrador</button>
+<button class="btn btn-warning" onclick="deshacer()">↩ Deshacer</button>
+<button class="btn btn-info" onclick="zoomIn()">🔍 +</button>
+<button class="btn btn-info" onclick="zoomOut()">🔍 -</button>
+<button class="btn btn-danger" onclick="descargarPDF()">📄 PDF</button>
+<button class="btn btn-success" onclick="guardarImagen()">💾 Guardar</button>
+</div>
+
+<div id="alerta" class="alert alert-success d-none">
+✅ Imagen guardada correctamente
+</div>
+
+<div class="canvas-container" id="contenedor">
+    <canvas id="canvasBase"></canvas>
+    <canvas id="canvasDibujo"></canvas>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const canvasBase = document.getElementById("canvasBase");
+const ctxBase = canvasBase.getContext("2d");
+const canvas = document.getElementById("canvasDibujo");
+const ctx = canvas.getContext("2d");
+
+let HISTORIAL_ID = document.getElementById("historialId").value;
+let imagenGuardada = document.getElementById("imagenGuardada").value;
+
+let imagen = new Image();
+imagen.src = "/img/odontograma.png";
+
+let dibujando = false;
+let colorActual = "#dc3545";
+let modoBorrador = false;
+let historial = [];
+let zoom = 1;
+
+// ========================
+// CARGAR IMAGEN BASE + ANOTACIÓN
+// ========================
+imagen.onload = function(){
+    canvasBase.width = imagen.width;
+    canvasBase.height = imagen.height;
+    canvas.width = imagen.width;
+    canvas.height = imagen.height;
+    ctxBase.drawImage(imagen, 0, 0);
+
+    if(imagenGuardada && imagenGuardada !== ""){
+        let img = new Image();
+        img.src = imagenGuardada;
+        img.onload = function(){
+            ctx.drawImage(img,0,0);
+        }
+    }
+}
+
+// ========================
+// COLOR
+// ========================
+function cambiarColor(color){ modoBorrador=false; colorActual=color; }
+function activarBorrador(){ modoBorrador=true; }
+
+// ========================
+// DIBUJO
+// ========================
+canvas.addEventListener("mousedown", ()=>{ dibujando=true; guardarEstado(); ctx.beginPath(); });
+canvas.addEventListener("mouseup", ()=>{ dibujando=false; ctx.beginPath(); });
+canvas.addEventListener("mouseleave", ()=>{ dibujando=false; ctx.beginPath(); });
+canvas.addEventListener("mousemove", (e)=>{
+    if(!dibujando) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left)/zoom;
+    const y = (e.clientY - rect.top)/zoom;
+    ctx.lineWidth = document.getElementById("size").value;
+    ctx.lineCap = "round";
+    ctx.globalAlpha = document.getElementById("alpha").value;
+    ctx.globalCompositeOperation = modoBorrador ? "destination-out" : "source-over";
+    ctx.strokeStyle = colorActual;
+    ctx.lineTo(x,y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+});
+
+// ========================
+// DESHACER
+// ========================
+function guardarEstado(){ historial.push(canvas.toDataURL()); }
+function deshacer(){
+    if(historial.length>0){
+        let img = new Image();
+        img.src = historial.pop();
+        img.onload=()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); }
+    }
+}
+
+// ========================
+// ZOOM
+// ========================
+function zoomIn(){ zoom+=0.1; aplicarZoom(); }
+function zoomOut(){ zoom-=0.1; if(zoom<0.3) zoom=0.3; aplicarZoom(); }
+function aplicarZoom(){ document.getElementById("contenedor").style.transform=`scale(${zoom})`; document.getElementById("contenedor").style.transformOrigin="top left"; }
+
+// ========================
+// GUARDAR EN BD CON CSRF
+// ========================
+function guardarImagen(){
+    if(!HISTORIAL_ID){ alert("Historial no válido"); return; }
+    let base64 = canvas.toDataURL("image/png");
+
+    // Obtener token CSRF de las metas
+    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    fetch("/odontograma/ajax/guardar-anotacion",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json",
+            [header]: token
+        },
+        body: JSON.stringify({ historialId: HISTORIAL_ID, imagen: base64 })
+    })
+    .then(res=>res.text())
+    .then(data=>{
+        console.log("Respuesta servidor:", data);
+        if(data==="OK"){
+            imagenGuardada = base64;
+            let alerta = document.getElementById("alerta");
+            alerta.classList.remove("d-none");
+            setTimeout(()=> alerta.classList.add("d-none"),2000);
+        } else {
+            alert("Error al guardar: "+data);
+        }
+    })
+    .catch(err=>alert("Error en conexión: "+err));
+}
+
+// ========================
+// PDF
+// ========================
+function descargarPDF(){
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width=canvas.width; tempCanvas.height=canvas.height;
+    tempCtx.drawImage(canvasBase,0,0); tempCtx.drawImage(canvas,0,0);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("l","px",[tempCanvas.width,tempCanvas.height]);
+    pdf.addImage(tempCanvas.toDataURL("image/png"),"PNG",0,0,tempCanvas.width,tempCanvas.height);
+    pdf.save("odontograma.pdf");
+}
+</script>
+
+</body>
+</html>

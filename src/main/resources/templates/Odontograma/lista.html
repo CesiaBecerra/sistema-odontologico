@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Odontograma Profesional</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f5f7fa;
+}
+
+.titulo{
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    margin:20px;
+}
+
+.odontograma{
+    width:95%;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.diente-svg{
+    width:60px;
+    height:80px;
+    cursor:pointer;
+}
+
+.fila{
+    display:flex;
+    justify-content:center;
+    gap:5px;
+    margin-bottom:15px;
+}
+
+.superficie{
+    stroke:#003366;
+    stroke-width:2;
+    fill:white;
+}
+
+.CARIES{ fill:red !important; }
+.OBTURADO{ fill:blue !important; }
+.EXTRAIDO{ fill:black !important; }
+
+@media print{
+    button{ display:none; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="titulo">ODONTOGRAMA</div>
+
+<div class="odontograma">
+
+    <div class="fila"
+         th:each="n : ${#numbers.sequence(18,11)}">
+
+        <svg class="diente-svg"
+             th:attr="data-pieza=${n}">
+
+            <!-- OCLUSAL -->
+            <polygon points="20,10 40,10 45,25 15,25"
+                     class="superficie"
+                     th:attr="data-superficie='O'"
+                     onclick="guardarEstado(this)" />
+
+            <!-- IZQUIERDA -->
+            <polygon points="15,25 25,70 20,75 10,30"
+                     class="superficie"
+                     data-superficie="M"
+                     onclick="guardarEstado(this)" />
+
+            <!-- DERECHA -->
+            <polygon points="45,25 50,30 40,75 35,70"
+                     class="superficie"
+                     data-superficie="D"
+                     onclick="guardarEstado(this)" />
+
+            <!-- CENTRO -->
+            <rect x="20" y="30" width="20" height="30"
+                  class="superficie"
+                  data-superficie="V"
+                  onclick="guardarEstado(this)" />
+
+        </svg>
+
+    </div>
+
+</div>
+
+<script>
+
+function guardarEstado(element){
+
+    let pieza = element.closest("svg").dataset.pieza;
+    let superficie = element.dataset.superficie;
+
+    let estado = prompt("Estado: CARIES, OBTURADO, EXTRAIDO");
+
+    if(!estado) return;
+
+    fetch("/odontograma/ajax/guardar",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+            pieza: pieza,
+            superficie: superficie,
+            estado: estado,
+            historialId: [[$historialId]]
+        })
+    })
+    .then(res => res.text())
+    .then(data=>{
+        element.classList.remove("CARIES","OBTURADO","EXTRAIDO");
+        element.classList.add(estado);
+    });
+
+}
+
+</script>
+
+</body>
+</html>

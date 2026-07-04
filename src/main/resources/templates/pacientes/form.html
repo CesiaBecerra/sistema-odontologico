@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Paciente | Digital Dentic</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body{
+            background:#f4f6f9;
+        }
+        .card-custom{
+            border:none;
+            border-radius:15px;
+            box-shadow:0 8px 18px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+
+<body sec:authorize="hasAnyRole('ADMIN','SECRETARIO')">
+
+<div class="container mt-5">
+
+    <div class="card card-custom p-4 col-md-8 mx-auto">
+
+        <h3 class="mb-4">
+            <i class="bi bi-person-plus text-success"></i> Registrar Paciente
+        </h3>
+
+        <!-- 🔴 Mostrar error si existe -->
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form th:action="@{/pacientes/guardar}" th:object="${paciente}" method="post">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nombres</label>
+                    <input type="text" class="form-control" th:field="*{nombres}" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Apellidos</label>
+                    <input type="text" class="form-control" th:field="*{apellidos}" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">DNI</label>
+                    <input type="text" class="form-control" th:field="*{dni}" 
+                           pattern="^\d{8}$" 
+                           title="El DNI debe tener exactamente 8 números" 
+                           required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" class="form-control" th:field="*{telefono}" 
+                           pattern="^9\d{8}$" 
+                           title="El teléfono debe tener 9 dígitos y empezar con 9" 
+                           required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" th:field="*{email}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" class="form-control" th:field="*{direccion}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Fecha de Nacimiento</label>
+                    <input type="date" class="form-control" th:field="*{nacimiento}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Sexo</label>
+                    <select class="form-select" th:field="*{sexo}">
+                        <option value="">Seleccione</option>
+                        <option value="MASCULINO">Masculino</option>
+                        <option value="FEMENINO">Femenino</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <a href="/pacientes" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save"></i> Guardar Paciente
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
