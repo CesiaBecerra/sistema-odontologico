@@ -3,18 +3,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Si tu rama en GitHub se llama 'main', déjalo así.
+                // Si se llama 'master', cámbialo en la siguiente línea.
                 git branch: 'main', url: 'https://github.com/CesiaBecerra/sistema-odontologico.git'
             }
         }
-        stage('Compilar y Test') {
+        stage('Build & Test') {
             steps {
-                sh 'mvn clean test'
+                sh './mvnw clean test'
             }
         }
         stage('SonarQube Analysis') {
             steps {
-                // Aquí Jenkins enviará el reporte a tu contenedor de SonarQube
-                sh 'mvn sonar:sonar -Dsonar.host.url=http://host.docker.internal:9000'
+                sh './mvnw sonar:sonar -Dsonar.host.url=http://host.docker.internal:9000'
             }
         }
     }
