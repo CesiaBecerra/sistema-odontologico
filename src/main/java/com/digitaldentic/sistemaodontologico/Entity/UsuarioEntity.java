@@ -38,4 +38,8 @@ public class UsuarioEntity {
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+    // Añade esto en UsuarioEntity.java
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

@@ -7,13 +7,7 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.digitaldentic.sistemaodontologico.Entity.EstadoOdontogramaEntity;
 import com.digitaldentic.sistemaodontologico.Entity.OdontogramaEntity;
@@ -39,6 +33,7 @@ public class OdontogramaController {
     // ===========================
     @GetMapping("/historial/{id}")
     public String verOdontograma(@PathVariable Long id, Model model) {
+
         Optional<HistorialEntity> historialOpt = historialRepo.findById(id);
         if (historialOpt.isEmpty()) return "redirect:/";
 
@@ -53,42 +48,57 @@ public class OdontogramaController {
     }
 
     // ===========================
-    // NUEVO ODONTOGRAMA
+    // NUEVO
     // ===========================
     @GetMapping("/nuevo/{id}")
     public String nuevo(@PathVariable Long id, Model model) {
+
         Optional<HistorialEntity> historialOpt = historialRepo.findById(id);
         if (historialOpt.isEmpty()) return "redirect:/";
 
         OdontogramaEntity o = new OdontogramaEntity();
         o.setHistorial(historialOpt.get());
+
         model.addAttribute("odontograma", o);
 
         return "odontograma/form";
     }
 
     // ===========================
-    // GUARDAR NORMAL (SUPERFICIES)
+    // GUARDAR NORMAL
     // ===========================
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute OdontogramaEntity o) {
+
         if (o.getHistorial() == null || o.getHistorial().getId() == null) {
             return "redirect:/";
         }
+
         service.guardar(o);
+
         return "redirect:/odontograma/historial/" + o.getHistorial().getId();
     }
 
     // ===========================
-    // GUARDAR POR AJAX (SUPERFICIES)
+    // AJAX GUARDAR
     // ===========================
     @PostMapping("/ajax/guardar")
     @ResponseBody
     public ResponseEntity<String> guardarAjax(@RequestBody Map<String, String> datos) {
+
         try {
-            Long historialId = Long.parseLong(datos.get("historialId"));
+            Long historialId;
+
+            try {
+                historialId = Long.parseLong(datos.get("historialId"));
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().body("ERROR");
+            }
+
             Optional<HistorialEntity> historialOpt = historialRepo.findById(historialId);
-            if (historialOpt.isEmpty()) return ResponseEntity.badRequest().body("ERROR");
+            if (historialOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("ERROR");
+            }
 
             OdontogramaEntity o = new OdontogramaEntity();
             o.setHistorial(historialOpt.get());
@@ -99,18 +109,19 @@ public class OdontogramaController {
             service.guardar(o);
 
             return ResponseEntity.ok("OK");
+
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body("ERROR");
         }
     }
 
     // ===========================
-    // GUARDAR ANOTACIÓN (CANVAS SUPERIOR)
+    // GUARDAR ANOTACIÓN
     // ===========================
     @PostMapping("/ajax/guardar-anotacion")
     @ResponseBody
     public ResponseEntity<String> guardarAnotacion(@RequestBody Map<String, String> datos) {
+
         try {
             String idStr = datos.get("historialId");
             String imagen = datos.get("imagen");
@@ -119,20 +130,27 @@ public class OdontogramaController {
                 return ResponseEntity.badRequest().body("ERROR: datos incompletos");
             }
 
-            Long historialId = Long.parseLong(idStr);
+            Long historialId;
+
+            try {
+                historialId = Long.parseLong(idStr);
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().body("ERROR");
+            }
+
             Optional<HistorialEntity> historialOpt = historialRepo.findById(historialId);
-            if (historialOpt.isEmpty()) return ResponseEntity.badRequest().body("ERROR: historial no encontrado");
+            if (historialOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("ERROR: historial no encontrado");
+            }
 
             HistorialEntity historial = historialOpt.get();
             historial.setOdontogramaAnotacion(imagen);
 
             historialRepo.save(historial);
 
-            System.out.println("✔ Anotación guardada para historialId: " + historialId + ", tamaño: " + imagen.length());
-
             return ResponseEntity.ok("OK");
+
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body("ERROR: " + e.getMessage());
         }
     }

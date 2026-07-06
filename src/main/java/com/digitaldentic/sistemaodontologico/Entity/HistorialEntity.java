@@ -197,4 +197,10 @@ public class HistorialEntity {
 
     public String getOdontogramaAnotacion() { return odontogramaAnotacion; }
     public void setOdontogramaAnotacion(String odontogramaAnotacion) { this.odontogramaAnotacion = odontogramaAnotacion; }
+
+    // Añade esto en HistorialEntity.java
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 }

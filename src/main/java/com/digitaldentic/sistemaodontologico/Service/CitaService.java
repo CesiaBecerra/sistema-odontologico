@@ -42,10 +42,6 @@ public class CitaService {
         return repo.findByDoctorAndFechaHoraBetween(doctor, inicio, fin);
     }
 
-    // ===============================
-    // NUEVOS MÉTODOS
-    // ===============================
-
     public CitaEntity buscarPorId(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cita no encontrada"));

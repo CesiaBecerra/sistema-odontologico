@@ -46,6 +46,8 @@ public class PagoEntity {
     // ===== GETTERS Y SETTERS =====
 
     public Long getId() { return id; }
+    // IMPORTANTE: Este método es necesario para los tests unitarios
+    public void setId(Long id) { this.id = id; }
 
     public Double getMonto() { return monto; }
     public void setMonto(Double monto) { this.monto = monto; }

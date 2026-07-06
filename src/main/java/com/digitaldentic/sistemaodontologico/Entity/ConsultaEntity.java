@@ -1,7 +1,6 @@
 package com.digitaldentic.sistemaodontologico.Entity;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,47 +16,36 @@ public class ConsultaEntity {
     private String nombre;
     private String telefono;
     private String mensaje;
-
+    private String descripcion; // <-- FALTA ESTE CAMPO
     private LocalDateTime fecha;
-
     private boolean atendido;
 
-    // getters setters
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getNombre() {
-        return nombre;
-    }
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-    public String getTelefono() {
-        return telefono;
-    }
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-    public String getMensaje() {
-        return mensaje;
-    }
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
-    }
-    public LocalDateTime getFecha() {
-        return fecha;
-    }
-    public void setFecha(LocalDateTime fecha) {
-        this.fecha = fecha;
-    }
-    public boolean isAtendido() {
-        return atendido;
-    }
-    public void setAtendido(boolean atendido) {
-        this.atendido = atendido;
+    // --- GETTERS Y SETTERS ---
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public String getMensaje() { return mensaje; }
+    public void setMensaje(String mensaje) { this.mensaje = mensaje; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public boolean isAtendido() { return atendido; }
+    public void setAtendido(boolean atendido) { this.atendido = atendido; }
+
+    // --- CORRECCIÓN AQUÍ ---
+    public String getDescripcion() {
+        return descripcion;
     }
 
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 }
