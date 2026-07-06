@@ -1,1 +1,13 @@
+name: Prueba de Runner Local
 
+on: [push]
+
+jobs:
+  job-de-prueba:
+    runs-on: self-hosted
+    steps:
+      - name: Saludo desde mi PC
+        run: echo "¡Hola! El runner CESIA está funcionando perfectamente."
+      
+      - name: Mostrar directorio actual
+        run: dir
