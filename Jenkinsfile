@@ -34,16 +34,17 @@ pipeline {
                 sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://host.docker.internal:8081 || true'
             }
         }
-
-        stage('Docker Build & Deploy') {
-            steps {
-                script {
-                    sh 'docker build -t sistema-odontologico:latest .'
-                    sh 'docker stop odontologia-app || true'
-                    sh 'docker rm odontologia-app || true'
-                    sh 'docker run -d --name odontologia-app -p 8081:8080 sistema-odontologico:latest'
-                }
-            }
-        }
+            stage('Docker Build & Deploy') {
+                        steps {
+                            script {
+                                sh 'docker build -t sistema-odontologico:latest .'
+                                // Quitamos el || true. Ahora, si el contenedor no existe,
+                                // estos comandos fallarán y detendrán el pipeline.
+                                sh 'docker stop odontologia-app'
+                                sh 'docker rm odontologia-app'
+                                sh 'docker run -d --name odontologia-app -p 8081:8080 sistema-odontologico:latest'
+                            }
+                        }
+                    }
     }
 }
