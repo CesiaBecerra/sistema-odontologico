@@ -1,0 +1,15 @@
+name: Prueba de Runner Local
+
+on: [push]
+
+jobs:
+  job-de-prueba:
+    runs-on: self-hosted
+    steps:
+      - name: Saludo desde mi PC
+        shell: powershell
+        run: Write-Host "¡Hola! El runner CESIA está funcionando perfectamente."
+      
+      - name: Listar archivos
+        shell: powershell
+        run: Get-ChildItem
